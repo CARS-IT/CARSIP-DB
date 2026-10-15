@@ -97,6 +97,7 @@ class MAC(Base, table=True):
 
     dhcp: "DHCP" = Relationship(back_populates="mac")
     port_fdb: "PortFDB" = Relationship(back_populates="mac")
+    interface: "Interface" = Relationship(back_populates="mac")
 
 class IP(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -161,14 +162,15 @@ class Interface(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     name: str
-    mac_address: str
     manufacturer: str
     speed: int
     status: str
 
     device_id: int | None = Field(default=None, foreign_key="device.id")
+    mac_id: int | None = Field(default=None, foreign_key="mac.id")
 
     device: Device = Relationship(back_populates="interfaces")
+    mac: MAC = Relationship(back_populates="interface")
 
 
 class CPU(Base, table=True):
