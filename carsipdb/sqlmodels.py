@@ -20,6 +20,20 @@ class ComputerOSLink(SQLModel, table=True):
     os_id: int | None = Field(default=None, foreign_key="os.id", primary_key=True)
 
 
+class Neighbor(Base, table=True):
+    local_port_id: int | None = Field(default=None, foreign_key="port.id", primary_key=True)
+    remote_port_id: int | None = Field(default=None, foreign_key="port.id", primary_key=True)
+
+    local_port: "Port" = Relationship(
+        back_populates="local_ports",
+        sa_relationship_kwargs={"foreign_keys": "[Neighbor.local_port_id]"}
+    )
+    remote_port: "Port" = Relationship(
+        back_populates="remote_ports",
+        sa_relationship_kwargs={"foreign_keys": "[Neighbor.remote_port_id]"}
+    )
+
+
 class Device(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
@@ -59,9 +73,22 @@ class Computer(Base, table=True):
 
     device: Device = Relationship(back_populates="computer")
     cpus: list["CPU"] = Relationship(back_populates="computers", link_model=ComputerCPULink)
-    memory_slots: list["MemorySlot"] = Relationship(back_populates="computer")
+    memory_slots: list["MemorySlot"] = Relationship(back_populates="computer", cascade_delete=True)
     oses: list["OS"] = Relationship(back_populates="computers", link_model=ComputerOSLink)
-    physical_disks: list["PhysicalDisk"] = Relationship(back_populates="computer")
+    physical_disks: list["PhysicalDisk"] = Relationship(back_populates="computer", cascade_delete=True)
+
+class Switch(Base, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    device_id: int | None = Field(default=None, foreign_key="device.id")
+    firmware_id: int | None = Field(default=None, foreign_key="firmware.id")
+    cpu_id: int | None = Field(default=None, foreign_key="cpu.id")
+
+    memory_slots: list["MemorySlot"] = Relationship(back_populates="switch")
+    device: Device = Relationship(back_populates="switch")
+    firmware: "Firmware" = Relationship(back_populates="switches")
+    cpu: "CPU" = Relationship(back_populates="switches")
+    ports: list["Port"] = Relationship(back_populates="switch")
 
 class MAC(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -170,13 +197,13 @@ class MemorySlot(Base, table=True):
 
     slot_number: int
 
-    computer_id: int | None = Field(default=None, foreign_key="computer.id")
+    computer_id: int | None = Field(default=None, foreign_key="computer.id", ondelete="CASCADE")
     switch_id: int | None = Field(default=None, foreign_key="switch.id")
     memory_id: int | None = Field(default=None, foreign_key="memory.id")
 
-    computer: Computer = Relationship(back_populates="memory_slots")
+    computer: Computer | None = Relationship(back_populates="memory_slots")
     memory: Memory = Relationship(back_populates="memory_slots")
-    switch: "Switch" = Relationship(back_populates="memory_slots")
+    switch: Switch | None = Relationship(back_populates="memory_slots")
 
 
 class OS(Base, table=True):
@@ -195,7 +222,7 @@ class PhysicalDisk(Base, table=True):
     smart_status: str
     firmware: str
 
-    computer_id: int | None = Field(default=None, foreign_key="computer.id")
+    computer_id: int | None = Field(default=None, foreign_key="computer.id", ondelete="CASCADE")
     physicaldisktype_id: int | None = Field(default=None, foreign_key="physicaldisktype.id")
 
     computer: Computer = Relationship(back_populates="physical_disks")
@@ -224,19 +251,6 @@ class Volume(Base, table=True):
 
     physical_disk: PhysicalDisk = Relationship(back_populates="volumes")
 
-class Switch(Base, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-
-    device_id: int | None = Field(default=None, foreign_key="device.id")
-    firmware_id: int | None = Field(default=None, foreign_key="firmware.id")
-    cpu_id: int | None = Field(default=None, foreign_key="cpu.id")
-
-    memory_slots: list[MemorySlot] = Relationship(back_populates="switch")
-    device: Device = Relationship(back_populates="switch")
-    firmware: "Firmware" = Relationship(back_populates="switches")
-    cpu: CPU = Relationship(back_populates="switches")
-    ports: list["Port"] = Relationship(back_populates="switch")
-
 class Firmware(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
@@ -262,16 +276,18 @@ class Port(Base, table=True):
     port_type: "PortType" = Relationship(back_populates="ports")
     switch: Switch = Relationship(back_populates="ports")
     vlan: "VLAN" = Relationship(back_populates="ports")
-    neighbor_membership: list["Neighbor"] = Relationship(back_populates="port")
+    local_ports: list[Neighbor] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Neighbor.local_port_id == Port.id"
+        }
+    )
+    remote_ports: list[Neighbor] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Neighbor.remote_port_id == Port.id"
+        }
+    )
     port_fdb: "PortFDB" = Relationship(back_populates="port")
 
-class Neighbor(Base, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-
-    local_port_id: int | None = Field(default=None, foreign_key="port.id")
-    remote_port_id: int | None = Field(default=None, foreign_key="port.id")
-
-    port: Port = Relationship(back_populates="neighbor_membership")
 
 class PortType(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
