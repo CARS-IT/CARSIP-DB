@@ -199,9 +199,18 @@ def sqlmodel_validate_data(reset, engine) -> None:
             print("The following data failed to validate: ")
             print(e.json())
         """Relationships:
+        TODO: Change Type to Tag
         One to one: Computer, Device
                     Device, DHCP
                     DHCP, DNS
+                    Switch, Device
+                    PortFDB, Port
+                    PortFDB, MAC
+                    PortFDB, IP
+                    Interface, MAC
+                    DNS, IP
+                    DHCP, IP
+                    DHCP, MAC
         Many to one: Device, Location
                      Device, Sector
                      Device, Type
@@ -211,8 +220,15 @@ def sqlmodel_validate_data(reset, engine) -> None:
                      PhysicalDisk, Computer
                      PhysicalDisk, PhysicalDiskType
                      Volume, PhysicalDisk
+                     Switch, Firmware
+                     Port, Switch
+                     Port, PortType
+                     Port, VLAN
+                     Switch, CPU
+                     MemorySlot, Switch
         Many to many: Computer, CPU
                       Computer, OS
+                      Port, Port (via Neighbors)
         """
         test_computer.device = test_device
         test_device.dhcp = test_dhcp
@@ -244,6 +260,23 @@ def sqlmodel_validate_data(reset, engine) -> None:
             print("Error: Test OS not found")
         else:
             test_computer.oses = [ose]
+        test_switch.device = test_device
+        test_switch.firmware = test_firmware
+        test_switch.cpu = test_cpu
+        test_port1.switch = test_switch
+        test_port2.switch = test_switch
+        test_port1.port_type = test_porttype
+        test_port2.port_type = test_porttype
+        test_port1.vlan = test_vlan
+        test_port2.vlan = test_vlan
+        test_fdb.port = test_port1
+        test_fdb.mac = test_mac2
+        test_fdb.ip = test_ip2
+        
+        test_interface.mac = test_mac1
+        test_dns.ip = test_ip1
+        test_dhcp.ip = test_ip1
+        test_dhcp.mac = test_mac1
 
         session.add_all([test_device, test_computer, test_dns, test_dhcp, test_interface, test_mem_slot, test_disk, test_volume, test_port1, test_port2, test_mac1, test_mac2, test_ip1, test_ip2, test_switch, test_fdb, test_neighbor])
 
