@@ -19,6 +19,9 @@ class ComputerOSLink(SQLModel, table=True):
     computer_id: int | None = Field(default=None, foreign_key="computer.id", primary_key=True)
     os_id: int | None = Field(default=None, foreign_key="os.id", primary_key=True)
 
+class DeviceTagLink(SQLModel, table=True):
+    device_id: int | None = Field(default=None, foreign_key="device.id", primary_key=True)
+    tag_id: int | None = Field(default=None, foreign_key="tag.id", primary_key=True)
 
 class Neighbor(Base, table=True):
     local_port_id: int | None = Field(default=None, foreign_key="port.id", primary_key=True)
@@ -49,11 +52,10 @@ class Device(Base, table=True):
 
     location_id: int | None = Field(default=None, foreign_key="location.id")
     sector_id: int | None = Field(default=None, foreign_key="sector.id")
-    type_id: int | None = Field(default=None, foreign_key="type.id")
 
     location: "Location" = Relationship(back_populates="devices")
     sector: "Sector" = Relationship(back_populates="devices")
-    type: "Type" = Relationship(back_populates="devices")
+    tags: list["Tag"] = Relationship(back_populates="devices", link_model=DeviceTagLink)
     computer: "Computer" = Relationship(back_populates="device")
     dhcp: "DHCP" = Relationship(back_populates="device")
     interfaces: list["Interface"] = Relationship(back_populates="device")
@@ -134,12 +136,12 @@ class DNS(Base, table=True):
     dhcp: DHCP = Relationship(back_populates="dns")
     ip: IP = Relationship(back_populates="dns")
 
-class Type(Base, table=True):
+class Tag(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     name: str
 
-    devices: list[Device] = Relationship(back_populates="type")
+    devices: list[Device] = Relationship(back_populates="tags", link_model=DeviceTagLink)
 
 
 class Location(Base, table=True):
