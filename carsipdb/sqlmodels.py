@@ -19,22 +19,18 @@ class ComputerOSLink(SQLModel, table=True):
     computer_id: int | None = Field(default=None, foreign_key="computer.id", primary_key=True)
     os_id: int | None = Field(default=None, foreign_key="os.id", primary_key=True)
 
+
 class DeviceTagLink(SQLModel, table=True):
     device_id: int | None = Field(default=None, foreign_key="device.id", primary_key=True)
     tag_id: int | None = Field(default=None, foreign_key="tag.id", primary_key=True)
+
 
 class Neighbor(Base, table=True):
     local_port_id: int | None = Field(default=None, foreign_key="port.id", primary_key=True)
     remote_port_id: int | None = Field(default=None, foreign_key="port.id", primary_key=True)
 
-    local_port: "Port" = Relationship(
-        back_populates="local_ports",
-        sa_relationship_kwargs={"foreign_keys": "[Neighbor.local_port_id]"}
-    )
-    remote_port: "Port" = Relationship(
-        back_populates="remote_ports",
-        sa_relationship_kwargs={"foreign_keys": "[Neighbor.remote_port_id]"}
-    )
+    local_port: "Port" = Relationship(back_populates="local_ports", sa_relationship_kwargs={"foreign_keys": "[Neighbor.local_port_id]"})
+    remote_port: "Port" = Relationship(back_populates="remote_ports", sa_relationship_kwargs={"foreign_keys": "[Neighbor.remote_port_id]"})
 
 
 class Device(Base, table=True):
@@ -79,6 +75,7 @@ class Computer(Base, table=True):
     oses: list["OS"] = Relationship(back_populates="computers", link_model=ComputerOSLink)
     physical_disks: list["PhysicalDisk"] = Relationship(back_populates="computer", cascade_delete=True)
 
+
 class Switch(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
@@ -92,6 +89,7 @@ class Switch(Base, table=True):
     cpu: "CPU" = Relationship(back_populates="switches")
     ports: list["Port"] = Relationship(back_populates="switch")
 
+
 class MAC(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
@@ -101,6 +99,7 @@ class MAC(Base, table=True):
     port_fdb: "PortFDB" = Relationship(back_populates="mac")
     interface: "Interface" = Relationship(back_populates="mac")
 
+
 class IP(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
@@ -109,6 +108,7 @@ class IP(Base, table=True):
     dhcp: "DHCP" = Relationship(back_populates="ip")
     dns: "DNS" = Relationship(back_populates="ip")
     port_fdb: "PortFDB" = Relationship(back_populates="ip")
+
 
 class DHCP(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -135,6 +135,7 @@ class DNS(Base, table=True):
 
     dhcp: DHCP = Relationship(back_populates="dns")
     ip: IP = Relationship(back_populates="dns")
+
 
 class Tag(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -255,12 +256,14 @@ class Volume(Base, table=True):
 
     physical_disk: PhysicalDisk = Relationship(back_populates="volumes")
 
+
 class Firmware(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     name: str
 
     switches: list[Switch] = Relationship(back_populates="firmware")
+
 
 class Port(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -280,16 +283,8 @@ class Port(Base, table=True):
     port_type: "PortType" = Relationship(back_populates="ports")
     switch: Switch = Relationship(back_populates="ports")
     vlan: "VLAN" = Relationship(back_populates="ports")
-    local_ports: list[Neighbor] = Relationship(
-        sa_relationship_kwargs={
-            "primaryjoin": "Neighbor.local_port_id == Port.id"
-        }
-    )
-    remote_ports: list[Neighbor] = Relationship(
-        sa_relationship_kwargs={
-            "primaryjoin": "Neighbor.remote_port_id == Port.id"
-        }
-    )
+    local_ports: list[Neighbor] = Relationship(sa_relationship_kwargs={"primaryjoin": "Neighbor.local_port_id == Port.id"})
+    remote_ports: list[Neighbor] = Relationship(sa_relationship_kwargs={"primaryjoin": "Neighbor.remote_port_id == Port.id"})
     port_fdb: "PortFDB" = Relationship(back_populates="port")
 
 
@@ -300,16 +295,18 @@ class PortType(Base, table=True):
 
     ports: list[Port] = Relationship(back_populates="port_type")
 
+
 class VLAN(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    
+
     name: str
 
     ports: list[Port] = Relationship(back_populates="vlan")
 
+
 class PortFDB(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    
+
     vendor: str
 
     port_id: int | None = Field(default=None, foreign_key="port.id")

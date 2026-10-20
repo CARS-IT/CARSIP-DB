@@ -82,7 +82,24 @@ def sqlmodel_validate_data(reset, engine) -> None:
             print("The following data failed to validate: ")
             print(e.json())
 
-        session.add_all([sector_13, sector_14, sector_15, lom_13, lom_14, lom_15, test_tag, test_mem, test_cpu, win11, test_disktype, test_firmware, test_porttype, test_vlan])
+        session.add_all(
+            [
+                sector_13,
+                sector_14,
+                sector_15,
+                lom_13,
+                lom_14,
+                lom_15,
+                test_tag,
+                test_mem,
+                test_cpu,
+                win11,
+                test_disktype,
+                test_firmware,
+                test_porttype,
+                test_vlan,
+            ]
+        )
         # Examples used: CARS5 and CHEMMAT-F126
         device = {
             "location_id": 1,
@@ -145,7 +162,7 @@ def sqlmodel_validate_data(reset, engine) -> None:
             "description": "Example",
             "admin_status": True,
             "is_uplink": False,
-            "modify_time": timestamp, 
+            "modify_time": timestamp,
             "create_time": timestamp,
         }
         port2 = {
@@ -159,7 +176,7 @@ def sqlmodel_validate_data(reset, engine) -> None:
             "description": "Remote",
             "admin_status": False,
             "is_uplink": False,
-            "modify_time": timestamp, 
+            "modify_time": timestamp,
             "create_time": timestamp,
         }
         fdb = {
@@ -167,13 +184,13 @@ def sqlmodel_validate_data(reset, engine) -> None:
             "port_id": 1,
             "mac_id": 1,
             "ip_id": 1,
-            "modify_time": timestamp, 
+            "modify_time": timestamp,
             "create_time": timestamp,
         }
         neighbor = {
             "local_port_id": 1,
             "remote_port_id": 2,
-            "modify_time": timestamp, 
+            "modify_time": timestamp,
             "create_time": timestamp,
         }
         try:
@@ -273,4 +290,24 @@ def sqlmodel_validate_data(reset, engine) -> None:
 
         test_device.tags = [test_tag]
 
-        session.add_all([test_device, test_computer, test_dns, test_dhcp, test_interface, test_mem_slot, test_disk, test_volume, test_port1, test_port2, test_mac1, test_mac2, test_ip1, test_ip2, test_switch, test_fdb, test_neighbor])
+        session.add_all(
+            [
+                test_device,
+                test_computer,
+                test_dns,
+                test_dhcp,
+                test_interface,
+                test_mem_slot,
+                test_disk,
+                test_volume,
+                test_port1,
+                test_port2,
+                test_mac1,
+                test_mac2,
+                test_ip1,
+                test_ip2,
+                test_switch,
+                test_fdb,
+                test_neighbor,
+            ]
+        )
