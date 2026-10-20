@@ -11,14 +11,10 @@
 # ----------------------------------------------------------------------------------
 from argparse import ArgumentParser
 
-from sqlalchemy import create_engine as create_alch_engine
 from sqlmodel import create_engine as create_smodel_engine
 
-# from carsipdb.utils import alchemy_sample_data
-# from carsipdb.sqlmodel_test_script import sqlmodel_sample_data
 from carsipdb.sqlmodel_test_script import sqlmodel_validate_data
 
-A_ENGINE = None
 S_ENGINE = None
 SESSION = None
 
@@ -31,18 +27,15 @@ def main() -> None:
     parser.add_argument("-r", "--reset", action="store_true", help="Clear all previous data from the DB before running the script.")
     parser.add_argument("-u", "--username", type=str, help="Database username.")
     parser.add_argument("-p", "--password", type=str, help="Database password.")
-    parser.add_argument("-H", "--hostname", type=str, help="Hostname for database.")
+    parser.add_argument("-H", "--hostname", type=str, help="Hostname for database, e.g. localhost.")
     parser.add_argument("-P", "--port", type=int, help="Port number for database.")
     parser.add_argument("-n", "--name", type=str, help="Database name.")
     args = parser.parse_args()
 
     DATABASE_URI = f"postgresql+psycopg2://{args.username}:{args.password}@{args.hostname}:{args.port}/{args.name}"
 
-    global A_ENGINE, SESSION
+    global SESSION
 
-    A_ENGINE = create_alch_engine(DATABASE_URI, echo=True)
     S_ENGINE = create_smodel_engine(DATABASE_URI, echo=True)
 
     sqlmodel_validate_data(args.reset, S_ENGINE)
-    # sqlmodel_sample_data(args.reset, S_ENGINE)
-    # alchemy_sample_data(args.reset, A_ENGINE)
