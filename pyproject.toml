@@ -13,9 +13,11 @@
 name = "carsipdb"
 version = "0.1.0"
 authors = [
+    {name = "Alexander Nicolellis", email = "66699898+anicolellis@users.noreply.github.com"},
     {name = "Christofanis Skordas", email = "55315750+skordaschristofanis@users.noreply.github.com"}
 ]
 maintainers = [
+    {name = "Alexander Nicolellis", email = "66699898+anicolellis@users.noreply.github.com"},
     {name = "Christofanis Skordas", email = "55315750+skordaschristofanis@users.noreply.github.com"}
 ]
 description = "CARSIP-DB is a project to create and manage a database with IT related inventory information for CARS."
@@ -35,7 +37,6 @@ classifiers = [
 requires-python = "==3.14.*"
 dependencies = [
     "psycopg2>=2.9.12",
-    "sqlalchemy>=2.0.51",
     "sqlmodel>=0.0.39",
 ]
 
